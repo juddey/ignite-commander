@@ -1,0 +1,7 @@
+import React from 'react'
+import { storiesOf } from '@storybook/react-native'
+import { <%= props.pascalName %> } from './<%= props.name %>'
+
+storiesOf('<%= props.pascalName %>', module).add('default', () => (
+  <<%= props.pascalName %> />
+))
