@@ -10,6 +10,8 @@ module.exports = async function (context) {
   const folder = options.folder || options.f
   const config = ignite.loadIgniteConfig()
   const storybooks = path(['ignite-base-plate', 'storybooks'], config)
+  const format = path(['ignite-base-plate', 'format'], config)  
+  const componentpath = path(['ignite-base-plate', 'format'], config)    
 
   // validation
   if (isBlank(parameters.first)) {
@@ -22,46 +24,72 @@ module.exports = async function (context) {
   const domainChoices = ['(Create New)', ...domains]
   let domainAddAnswer = {}
   let domainPath = ''
-  if (!folder) {
-    const domainQuestion = 'Add component to which domain?'
-    domainAddAnswer = await prompt.ask({
-      name: 'domain',
-      type: 'list',
-      message: domainQuestion,
-      choices: domainChoices
-    })
-    domainPath = (domainAddAnswer.domain === domainChoices[0]) ? '' : domainAddAnswer.domain + '/'
-  } else {
-    domainPath = (folder === 'views') ? '' : folder + '/'
+  if (format === 'feature') {
+    if (!folder) {
+      const domainQuestion = 'Add component to which domain?'
+      domainAddAnswer = await prompt.ask({
+        name: 'domain',
+        type: 'list',
+        message: domainQuestion,
+        choices: domainChoices
+      })
+      domainPath = (domainAddAnswer.domain === domainChoices[0]) ? '' : domainAddAnswer.domain + '/'
+    } else {
+      domainPath = (folder === 'views') ? '' : folder + '/'
+    }
   }
 
   const name = parameters.first
   const pascalName = pascalCase(name)
-  const newDomain = isBlank(domainPath)
-  const sharedComponent = domainPath === 'shared/'
 
-  const props = { name, pascalName, newDomain, sharedComponent }
-  let jobs = [
-    {
-      template: 'component.js.ejs',
-      target: `src/views/${domainPath}${name}/${name}.js`
-    }, {
-      template: 'rollup-index.js.ejs',
-      target: `src/views/${domainPath}${name}/index.js`
+  const props = { name, pascalName }
+  if (format === 'feature') {
+    let jobs = [
+      {
+        template: 'component.js.ejs',
+        target: `src/views/${domainPath}${name}/${name}.js`
+      }, {
+        template: 'rollup-index.js.ejs',
+        target: `src/views/${domainPath}${name}/index.js`
+      }
+    ]
+  
+    if (storybooks) {
+      jobs.push({
+        template: 'component.story.js.ejs',
+        target: `src/views/${domainPath}${name}/${name}.story.js`
+      })
     }
-  ]
-
-  if (storybooks) {
-    jobs.push({
-      template: 'component.story.js.ejs',
-      target: `src/views/${domainPath}${name}/${name}.story.js`
-    })
   }
 
-  await ignite.copyBatch(context, jobs, props)
+  if (format === 'function') {
+    let jobs = [
+      {
+        template: 'component.js.ejs',
+        target: folder ? `${componentPath}${folder}/${name}.js` : `${componentPath}${name}.js`
+      }
+    ]
+  
+    if (storybooks) {
+      jobs.push({
+        template: 'component.story.js.ejs',
+        target: folder ? `${componentPath}${folder}/${name}.js` : `${componentPath}${name}.js`
+      })
+    }
+  }
+
+   await ignite.copyBatch(context, jobs, props)
 
   if (storybooks) {
     // wire up example
-    patching.insertInFile('./storybook/storybook-registry.js', '\n', `require('../src/views/${domainPath}${name}/${name}.story')`)
+    if (format === 'function') {
+      patching.insertInFile('./storybook/storybook-registry.js', '\n', `require('../src/views/${domainPath}${name}/${name}.story')`)
+    } else {
+        if (folder) { 
+          patching.insertInFile('./storybook/storybook-registry.js', '\n', `require('../${componentPath}${folder}/${name}.story')`)
+      } else {
+          patching.insertInFile('./storybook/storybook-registry.js', '\n', `require('../${componentPath}${name}.story')`)
+      }
+    }
   }
 }
