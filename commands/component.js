@@ -19,11 +19,10 @@ module.exports = async function (context) {
     print.info('A name is required.')
     return
   }
-
-  if (format === 'feature') { 
-    const domains = filesystem.list('./src/views/')
-    const domainChoices = ['(Create New)', ...domains]
-  }
+   
+  const domains = format === 'feature' ? filesystem.list('./src/views/') : []
+  const domainChoices = format === 'feature' ? ['(Create New)', ...domains] : []
+    
   let domainAddAnswer = {}
   let domainPath = ''
   let jobs = []
