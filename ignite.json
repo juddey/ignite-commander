@@ -1,5 +1,5 @@
 {
   
-    "generators": [ "component" ]
+    "generators": [ "component", "screen" ]
   
 }

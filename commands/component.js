@@ -11,7 +11,7 @@ module.exports = async function (context) {
   const config = ignite.loadIgniteConfig()
   const storybooks = path(['ignite-base-plate', 'storybooks'], config)
   const format = path(['ignite-base-plate', 'format'], config)  
-  const componentpath = path(['ignite-base-plate', 'format'], config)    
+  const componentPath = path(['ignite-base-plate', 'componentpath'], config)    
 
   // validation
   if (isBlank(parameters.first)) {
@@ -20,10 +20,13 @@ module.exports = async function (context) {
     return
   }
 
-  const domains = filesystem.list('./src/views/')
-  const domainChoices = ['(Create New)', ...domains]
+  if (format === 'feature') { 
+    const domains = filesystem.list('./src/views/')
+    const domainChoices = ['(Create New)', ...domains]
+  }
   let domainAddAnswer = {}
   let domainPath = ''
+  let jobs = []
   if (format === 'feature') {
     if (!folder) {
       const domainQuestion = 'Add component to which domain?'
@@ -44,7 +47,7 @@ module.exports = async function (context) {
 
   const props = { name, pascalName }
   if (format === 'feature') {
-    let jobs = [
+    jobs.push(
       {
         template: 'component.js.ejs',
         target: `src/views/${domainPath}${name}/${name}.js`
@@ -52,7 +55,7 @@ module.exports = async function (context) {
         template: 'rollup-index.js.ejs',
         target: `src/views/${domainPath}${name}/index.js`
       }
-    ]
+    )
   
     if (storybooks) {
       jobs.push({
@@ -63,17 +66,15 @@ module.exports = async function (context) {
   }
 
   if (format === 'function') {
-    let jobs = [
-      {
+    jobs.push({
         template: 'component.js.ejs',
         target: folder ? `${componentPath}${folder}/${name}.js` : `${componentPath}${name}.js`
-      }
-    ]
+    })   
   
     if (storybooks) {
       jobs.push({
         template: 'component.story.js.ejs',
-        target: folder ? `${componentPath}${folder}/${name}.js` : `${componentPath}${name}.js`
+        target: folder ? `${componentPath}${folder}/${name}.story.js` : `${componentPath}${name}.story.js`
       })
     }
   }
@@ -82,13 +83,13 @@ module.exports = async function (context) {
 
   if (storybooks) {
     // wire up example
-    if (format === 'function') {
+    if (format === 'feature') {
       patching.insertInFile('./storybook/storybook-registry.js', '\n', `require('../src/views/${domainPath}${name}/${name}.story')`)
     } else {
         if (folder) { 
-          patching.insertInFile('./storybook/storybook-registry.js', '\n', `require('../${componentPath}${folder}/${name}.story')`)
+          patching.insertInFile('./storybook/storybook-registry.js', '\n', `require('${componentPath}${folder}/${name}.story')`)
       } else {
-          patching.insertInFile('./storybook/storybook-registry.js', '\n', `require('../${componentPath}${name}.story')`)
+          patching.insertInFile('./storybook/storybook-registry.js', '\n', `require('${componentPath}${name}.story')`)
       }
     }
   }
