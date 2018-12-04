@@ -1,6 +1,6 @@
 // @cliDescription  Generates a component, index and a storybook test.
 
-const { path } = require('ramda')
+const { path, tail } = require('ramda')
 
 module.exports = async function (context) {
   // grab some features
@@ -86,9 +86,9 @@ module.exports = async function (context) {
       patching.insertInFile('./storybook/storybook-registry.js', '\n', `require('../src/views/${domainPath}${name}/${name}.story')`)
     } else {
         if (folder) { 
-          patching.insertInFile('./storybook/storybook-registry.js', '\n', `require('${componentPath}${folder}/${name}.story')`)
+          patching.insertInFile('./storybook/storybook-registry.js', '\n', `import '~${tail(componentPath)}${folder}/${name}.story')`)
       } else {
-          patching.insertInFile('./storybook/storybook-registry.js', '\n', `require('${componentPath}${name}.story')`)
+          patching.insertInFile('./storybook/storybook-registry.js', '\n', `import '~${tail(componentPath)}${name}.story')`)
       }
     }
   }
