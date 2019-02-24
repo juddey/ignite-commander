@@ -86,9 +86,9 @@ module.exports = async function (context) {
       patching.insertInFile('./storybook/storybook-registry.js', '\n', `require('../src/views/${domainPath}${name}/${name}.story')`)
     } else {
         if (folder) { 
-          patching.insertInFile('./storybook/storybook-registry.js', '\n', `import '~${tail(componentPath)}${folder}/${name}.story')`)
+          patching.insertInFile('./storybook/storybook-registry.js', '// StoryBook Registry', `import '~${tail(componentPath)}${folder}/${name}.story'`)
       } else {
-          patching.insertInFile('./storybook/storybook-registry.js', '\n', `import '~${tail(componentPath)}${name}.story')`)
+          patching.insertInFile('./storybook/storybook-registry.js', '// StoryBook Registry', `import '~${tail(componentPath)}${name}.story'`)
       }
     }
   }
