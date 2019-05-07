@@ -49,7 +49,14 @@ module.exports = async function (context) {
         target: folder
           ? `./src/Screens/${folder}/${name}.mutation.js`
           : `./src/Screens/${name}.mutation.js`
-      }
+      },
+      {
+        template: 'query.js.ejs',
+        target: folder
+          ? `./src/Screens/${folder}/${name}.query.js`
+          : `./src/Screens/${name}.query.js`
+      },
+
     )
   }
 

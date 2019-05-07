@@ -1,0 +1,13 @@
+import React from 'react'
+import gql from 'graphql-tag'
+
+const <%= props.screamingQuery %> = gql`
+  query <%= props.camelQuery %>($type: String!) {
+    alias: <%= props.camelQuery %>(type: $type) {
+      id
+      type
+    }
+  }
+`
+
+export { <%= props.screamingQuery %> }
