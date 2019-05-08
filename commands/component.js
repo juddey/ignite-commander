@@ -21,7 +21,6 @@ module.exports = async function (context) {
   }
 
   let jobs = []
-
   const name = parameters.first
   const pascalName = pascalCase(name)
   const props = { name, pascalName }
