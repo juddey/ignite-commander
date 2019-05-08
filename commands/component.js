@@ -30,6 +30,12 @@ module.exports = async function (context) {
     target: folder ? `${componentPath}${folder}/${name}.js` : `${componentPath}${name}.js`
   })
 
+  jobs.push({
+    template: 'test.js.ejs',
+    target: folder ? `${componentPath}${folder}/${name}.test.js` : `${componentPath}${name}.test.js`
+  })
+
+
   if (storybooks) {
     jobs.push({
       template: 'component.story.js.ejs',
@@ -38,6 +44,7 @@ module.exports = async function (context) {
         : `${componentPath}${name}.story.js`
     })
   }
+
 
   await ignite.copyBatch(context, jobs, props)
 }

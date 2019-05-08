@@ -1,0 +1,16 @@
+import React from 'react'
+import { render } from 'testUtils'
+import { fireEvent } from 'react-testing-library'
+import <%= props.pascalName %> from './<%= props.pascalName %>'
+
+const data = []
+
+test('invokes the onClick handler', async () => {
+  const spy = jest.fn()
+  const { getByText } = render(
+    <<%= props.pascalName %> />
+  )
+
+  fireEvent.click(getByText('Something Here'))
+  expect(spy).toHaveBeenCalledTimes(1)
+})
